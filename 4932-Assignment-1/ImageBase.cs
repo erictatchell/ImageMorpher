@@ -7,6 +7,7 @@
         protected Line? selectedLine;
         protected Bitmap? backgroundImage;
         protected int type;
+        protected bool deleting;
         public ImageBase(int type)
         {
             InitializeComponent();
@@ -16,6 +17,8 @@
             backgroundImage = null;
             SetStyle(ControlStyles.DoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
+
+            deleting = false;
 
             this.type = type;
             Text = TypeToString();
@@ -56,6 +59,10 @@
                 {
                     hoveringOverLine = true;
                     selectedLine = line;
+                    if (e.Button == MouseButtons.Right)
+                    {
+                        deleting = true;
+                    }
                 }
             }
 
@@ -91,20 +98,26 @@
 
         private void ImageBase_MouseUp(object sender, MouseEventArgs e)
         {
-            if (backgroundImage != null && e.Button == MouseButtons.Left && currentLine != null)
+            if (backgroundImage != null && e.Button == MouseButtons.Left && currentLine != null && !deleting)
             {
                 lines.Add(currentLine);
-                ((Parent)MdiParent).Reflect(currentLine, this.type);
+                ((Parent)MdiParent).Reflect(currentLine, this.type, Intention.CREATING_NEW_LINE);
                 currentLine = null;
                 selectedLine = null;
                 Refresh();
             }
-            else if (selectedLine != null)
+            else if (selectedLine != null && !deleting)
             {
                 selectedLine = null;
                 Refresh();
             }
         }
+
+        public Line getLine(int lineId)
+        {
+            return lines.Find(line => line.getId() == lineId);
+        }
+
 
         public void AddLines(Line line)
         {
@@ -140,6 +153,22 @@
 
                     Refresh();
                 }
+            }
+        }
+
+        public void DeleteLines(Line line)
+        {
+            lines.Remove(line);
+            deleting = false; 
+            Refresh();
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (selectedLine != null)
+            {
+                ((Parent)MdiParent).Reflect(selectedLine, type, Intention.DELETING);
+                Refresh();
             }
         }
     }

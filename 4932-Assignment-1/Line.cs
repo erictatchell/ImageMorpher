@@ -6,6 +6,8 @@
         private int startY;
         private int endX;
         private int endY;
+        private int id;
+        private static int counter = 0;
         private bool moving;
         private bool resizingStart;
         private bool resizingEnd;
@@ -18,6 +20,8 @@
             this.startY = startY;
             this.endX = endX;
             this.endY = endY;
+            id = counter / 2;
+            counter++;
             pen = new Pen(Color.Black, 3F);
             pen_1 = new Pen(Color.White, 2F);
         }
@@ -84,6 +88,11 @@
 
             // user is not resizing or moving an existing line, they are creating a new one
             else return Intention.CREATING_NEW_LINE;
+        }
+
+        public int getId()
+        {
+            return id;
         }
 
         public void Resize(MouseEventArgs e)

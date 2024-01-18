@@ -9,6 +9,7 @@ namespace ImageMorpher
         public const int MOVING = 501;
         public const int RESIZING_START = 502;
         public const int RESIZING_END = 503;
+        public const int DELETING = 504;
         public const int CREATING_NEW_LINE = 500;
     }
 

@@ -18,8 +18,25 @@ namespace ImageMorpher
             destination.Show();
         }
 
-        public void Reflect(Line line, int origin)
+        public void Reflect(Line line, int origin, int intention)
         {
+            if (intention == Intention.DELETING)
+            {
+                if (origin == ImageBaseType.SOURCE)
+                {
+                    Line destinationLine = destination.getLine(line.getId());
+                    destination.DeleteLines(destinationLine);
+                    source.DeleteLines(line);
+                }
+                else if (origin == ImageBaseType.DESTINATION)
+                {
+                    Line sourceLine = source.getLine(line.getId());
+                    source.DeleteLines(sourceLine);
+                    destination.DeleteLines(line);
+                }
+                return;
+            }
+
             Line copiedLine = new Line(line.StartX, line.StartY, line.EndX, line.EndY);
 
             if (origin == ImageBaseType.SOURCE)
@@ -30,7 +47,6 @@ namespace ImageMorpher
             {
                 source.AddLines(copiedLine);
             }
-
             source.Invalidate();
             destination.Invalidate();
         }
