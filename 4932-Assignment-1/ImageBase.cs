@@ -173,10 +173,15 @@ namespace ImageMorpher
             Bitmap transition = new Bitmap(backgroundImage.Width, backgroundImage.Height);
             List<Vector2> sourcePoints = new List<Vector2>();
             List<Color> colors = new List<Color>();
+
+            
+
             for (int y = 0; y < backgroundImage.Height; ++y)
             {
                 for (int x = 0; x < backgroundImage.Width; ++x)
                 {
+                    double weight_sum = 0;
+                    Vector2 delta_sum = new Vector2(0, 0);
                     for (int k = 0; k < lines.Count; k++)
                     {
                         Line line = lines[k];
@@ -200,10 +205,18 @@ namespace ImageMorpher
 
                         Vector2 XPrime = PPrime + Vector2.Multiply(fl, PQPrime) - Vector2.Multiply(d, Vector2.Divide(NPrime, NPrime.Length()));
 
-                        Vector2 v = validatePixel(XPrime, backgroundImage.Width, backgroundImage.Height);
-                        sourcePoints.Add(v);
-                        transition.SetPixel(x, y, backgroundImage.GetPixel((int)v.X, (int)v.Y));
+                        Vector2 X = new Vector2(x, y);
+                        Vector2 delta1 = XPrime - X;
+                        double weight = Math.Pow(1 / (d + 0.01), 2);
+                        weight_sum += weight;
+                        delta_sum += Vector2.Multiply((float)weight, delta1);
+
                     }
+                    Vector2 delta_avg = Vector2.Divide(delta_sum, (float)weight_sum);
+
+                    Vector2 XPrime_avg = new Vector2(x, y) + delta_avg;
+                    XPrime_avg = validatePixel(XPrime_avg, backgroundImage.Width, backgroundImage.Height);
+                    transition.SetPixel(x, y, backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
                 }
             }
             ((Parent)MdiParent).UpdateTransition(transition, transition);
