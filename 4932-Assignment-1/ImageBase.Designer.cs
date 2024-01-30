@@ -44,7 +44,7 @@
             toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripDropDownButton1 });
             toolStrip1.Location = new Point(0, 0);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new Size(258, 25);
+            toolStrip1.Size = new Size(234, 25);
             toolStrip1.TabIndex = 0;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -74,7 +74,7 @@
             // deleteToolStripMenuItem
             // 
             deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            deleteToolStripMenuItem.Size = new Size(180, 22);
+            deleteToolStripMenuItem.Size = new Size(107, 22);
             deleteToolStripMenuItem.Text = "Delete";
             deleteToolStripMenuItem.Click += deleteToolStripMenuItem_Click;
             // 
@@ -82,7 +82,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(258, 242);
+            ClientSize = new Size(234, 211);
             ContextMenuStrip = contextMenuStrip1;
             Controls.Add(toolStrip1);
             Name = "ImageBase";

@@ -18,7 +18,9 @@ namespace ImageMorpher
     {
         public const int SOURCE = 1000;
         public const int DESTINATION = 1001;
+        public const int TRANSITION = 1002;
         public const string SOURCE_STR = "Source";
         public const string DESTINATION_STR = "Destination";
+        public const string TRANSITION_STR = "Transition";
     }
 }

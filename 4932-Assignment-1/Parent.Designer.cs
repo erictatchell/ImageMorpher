@@ -28,49 +28,65 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.menu_strip = new System.Windows.Forms.MenuStrip();
-            this.menu_file = new System.Windows.Forms.ToolStripMenuItem();
-            this.menu_strip.SuspendLayout();
-            this.SuspendLayout();
+            menu_strip = new MenuStrip();
+            menu_file = new ToolStripMenuItem();
+            morphingToolStripMenuItem = new ToolStripMenuItem();
+            beginToolStripMenuItem = new ToolStripMenuItem();
+            menu_strip.SuspendLayout();
+            SuspendLayout();
             // 
             // menu_strip
             // 
-            this.menu_strip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menu_file});
-            this.menu_strip.Location = new System.Drawing.Point(0, 0);
-            this.menu_strip.Name = "menu_strip";
-            this.menu_strip.Size = new System.Drawing.Size(1079, 24);
-            this.menu_strip.TabIndex = 1;
-            this.menu_strip.Text = "menuStrip1";
-            this.menu_strip.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menu_strip_ItemClicked);
+            menu_strip.Items.AddRange(new ToolStripItem[] { menu_file, morphingToolStripMenuItem });
+            menu_strip.Location = new Point(0, 0);
+            menu_strip.Name = "menu_strip";
+            menu_strip.Size = new Size(1079, 24);
+            menu_strip.TabIndex = 1;
+            menu_strip.Text = "menuStrip1";
+            menu_strip.ItemClicked += menu_strip_ItemClicked;
             // 
             // menu_file
             // 
-            this.menu_file.Name = "menu_file";
-            this.menu_file.Size = new System.Drawing.Size(37, 20);
-            this.menu_file.Text = "File";
+            menu_file.Name = "menu_file";
+            menu_file.Size = new Size(37, 20);
+            menu_file.Text = "File";
+            // 
+            // morphingToolStripMenuItem
+            // 
+            morphingToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { beginToolStripMenuItem });
+            morphingToolStripMenuItem.Name = "morphingToolStripMenuItem";
+            morphingToolStripMenuItem.Size = new Size(72, 20);
+            morphingToolStripMenuItem.Text = "Morphing";
+            // 
+            // beginToolStripMenuItem
+            // 
+            beginToolStripMenuItem.Name = "beginToolStripMenuItem";
+            beginToolStripMenuItem.Size = new Size(180, 22);
+            beginToolStripMenuItem.Text = "Begin";
+            beginToolStripMenuItem.Click += beginToolStripMenuItem_Click;
             // 
             // Parent
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1079, 634);
-            this.Controls.Add(this.menu_strip);
-            this.IsMdiContainer = true;
-            this.MainMenuStrip = this.menu_strip;
-            this.Name = "Parent";
-            this.Text = "Image Morpher";
-            this.Load += new System.EventHandler(this.Main_Load);
-            this.menu_strip.ResumeLayout(false);
-            this.menu_strip.PerformLayout();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1079, 634);
+            Controls.Add(menu_strip);
+            IsMdiContainer = true;
+            MainMenuStrip = menu_strip;
+            Name = "Parent";
+            Text = "Image Morpher";
+            Load += Main_Load;
+            menu_strip.ResumeLayout(false);
+            menu_strip.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private MenuStrip menu_strip;
         private ToolStripMenuItem menu_file;
+        private ToolStripMenuItem morphingToolStripMenuItem;
+        private ToolStripMenuItem beginToolStripMenuItem;
     }
 }
