@@ -186,6 +186,8 @@ namespace ImageMorpher
                     {
                         Line line = lines[k];
 
+                        Vector2 P = new Vector2(line.StartX, line.StartY);
+                        Vector2 Q = new Vector2(line.EndX, line.EndY);
                         Vector2 PQ = new Vector2(line.EndX - line.StartX, line.EndY - line.StartY);
                         Vector2 n = new Vector2(-PQ.Y, PQ.X);
                         Vector2 XP = new Vector2(line.StartX - x, line.StartY - y);
@@ -207,7 +209,18 @@ namespace ImageMorpher
 
                         Vector2 X = new Vector2(x, y);
                         Vector2 delta1 = XPrime - X;
-                        double weight = Math.Pow(1 / (d + 0.01), 2);
+                        double weight = 0;
+                        if (fl >= 0 && fl <= 1) weight = Math.Pow(1 / (d + 0.01), 2);
+                        else if (fl < 0)
+                        {
+                            float dxp = Vector2.Distance(X, P);
+                            weight = Math.Pow(1 / (dxp + 0.01), 2);
+                        }
+                        else if (fl > 1)
+                        {
+                            float dxq = Vector2.Distance(X, Q);
+                            weight = Math.Pow(1 / (dxq + 0.01), 2);
+                        }
                         weight_sum += weight;
                         delta_sum += Vector2.Multiply((float)weight, delta1);
 
