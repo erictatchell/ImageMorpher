@@ -24,7 +24,7 @@ namespace ImageMorpher
 
         private void button1_Click(object sender, EventArgs e)
         {
-            transition.SetImage(frames[count], frames[count]);
+            transition.SetImage(frames[count]);
             count++;
         }
 

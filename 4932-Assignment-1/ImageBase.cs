@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace ImageMorpher
@@ -9,7 +10,6 @@ namespace ImageMorpher
         private List<Line> lines;
         protected Line? currentLine;
         protected Line? selectedLine;
-        protected List<Bitmap> frames;
         protected Bitmap? backgroundImage;
         protected int type;
         protected bool deleting;
@@ -29,11 +29,16 @@ namespace ImageMorpher
             Text = TypeToString();
         }
 
-        public void SetImage(Bitmap image, Bitmap loaded )
+        public void SetImage(Bitmap image)
         {
             backgroundImage = image;
             //ResizeBitmap(loaded, ClientSize.Width, ClientSize.Height);
             Refresh();
+        }
+
+        public Bitmap GetImage()
+        {
+            return backgroundImage;
         }
 
         private string TypeToString()
@@ -92,7 +97,10 @@ namespace ImageMorpher
                     }
                 }
             }
-            else return;
+            else
+            {
+                backgroundImage = ((Parent)MdiParent).GetFrames()[3];
+            }
         }
 
 
@@ -163,18 +171,20 @@ namespace ImageMorpher
 
         }
 
-        public void Interpolate()
-        {
+        
 
-        }
-
-        public void Morph(List<Line> sourceLines)
+        public void Morph(List<Line> sourceLines, int num_frames)
         {
             Bitmap transition = new Bitmap(backgroundImage.Width, backgroundImage.Height);
-            List<Vector2> sourcePoints = new List<Vector2>();
-            List<Color> colors = new List<Color>();
+            List<Point> dest_points = new List<Point>();
+            List<Color> dest_colors = new List<Color>();
+            List<Point> source_points = new List<Point>();
+            List<Color> source_colors = new List<Color>();
 
-            
+            for (int i = 0; i < num_frames; i++)
+            {
+
+            }
 
             for (int y = 0; y < backgroundImage.Height; ++y)
             {
@@ -230,9 +240,15 @@ namespace ImageMorpher
                     Vector2 XPrime_avg = new Vector2(x, y) + delta_avg;
                     XPrime_avg = validatePixel(XPrime_avg, backgroundImage.Width, backgroundImage.Height);
                     transition.SetPixel(x, y, backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
+
+                    dest_points.Add(new Point(x, y));
+                    dest_colors.Add(backgroundImage.GetPixel(x, y));
+                    source_points.Add(new Point((int)XPrime_avg.X, (int)XPrime_avg.Y));
+                    source_colors.Add(backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
                 }
             }
-            ((Parent)MdiParent).UpdateTransition(transition, transition);
+            ((Parent)MdiParent).GenerateIntermediateFrames(dest_points, source_points, dest_colors, source_colors);
+            ((Parent)MdiParent).UpdateTransition(0);
         }
 
         private Vector2 validatePixel(Vector2 coord, int width, int height)
@@ -256,19 +272,6 @@ namespace ImageMorpher
             return coord;
         }
 
-        public void ReverseMap(Bitmap transition, List<Vector2> sourcePoints, List<Color> colors)
-        {
-            for (int i = 0; i < sourcePoints.Count; i++)
-            {
-                // Ensure that the coordinates are within bounds
-                float x = sourcePoints[i].X;
-                float y = sourcePoints[i].Y;
-
-                // Set the pixel color
-                
-            }
-        }
-
 
         private void openToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
@@ -282,7 +285,7 @@ namespace ImageMorpher
                     Bitmap loadedBitmap = new Bitmap(openFileDialog.FileName);
 
                     backgroundImage = ResizeBitmap(loadedBitmap, ClientSize.Width, ClientSize.Height);
-                    if (type == ImageBaseType.SOURCE) ((Parent)MdiParent).UpdateTransition(backgroundImage, loadedBitmap);
+                    if (type == ImageBaseType.SOURCE) ((Parent)MdiParent).TransitionInit(backgroundImage);
                     Refresh();
                 }
             }

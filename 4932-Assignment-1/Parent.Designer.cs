@@ -32,12 +32,15 @@
             menu_file = new ToolStripMenuItem();
             morphingToolStripMenuItem = new ToolStripMenuItem();
             beginToolStripMenuItem = new ToolStripMenuItem();
+            framesToolStripMenuItem = new ToolStripMenuItem();
+            frames5 = new ToolStripMenuItem();
+            frames10 = new ToolStripMenuItem();
             menu_strip.SuspendLayout();
             SuspendLayout();
             // 
             // menu_strip
             // 
-            menu_strip.Items.AddRange(new ToolStripItem[] { menu_file, morphingToolStripMenuItem });
+            menu_strip.Items.AddRange(new ToolStripItem[] { menu_file, morphingToolStripMenuItem, framesToolStripMenuItem });
             menu_strip.Location = new Point(0, 0);
             menu_strip.Name = "menu_strip";
             menu_strip.Size = new Size(1079, 24);
@@ -61,9 +64,30 @@
             // beginToolStripMenuItem
             // 
             beginToolStripMenuItem.Name = "beginToolStripMenuItem";
-            beginToolStripMenuItem.Size = new Size(180, 22);
+            beginToolStripMenuItem.Size = new Size(104, 22);
             beginToolStripMenuItem.Text = "Begin";
             beginToolStripMenuItem.Click += beginToolStripMenuItem_Click;
+            // 
+            // framesToolStripMenuItem
+            // 
+            framesToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { frames5, frames10 });
+            framesToolStripMenuItem.Name = "framesToolStripMenuItem";
+            framesToolStripMenuItem.Size = new Size(57, 20);
+            framesToolStripMenuItem.Text = "Frames";
+            // 
+            // frames5
+            // 
+            frames5.Name = "frames5";
+            frames5.Size = new Size(180, 22);
+            frames5.Text = "5";
+            frames5.Click += frames5_Click;
+            // 
+            // frames10
+            // 
+            frames10.Name = "frames10";
+            frames10.Size = new Size(180, 22);
+            frames10.Text = "10";
+            frames10.Click += frames10_Click;
             // 
             // Parent
             // 
@@ -88,5 +112,8 @@
         private ToolStripMenuItem menu_file;
         private ToolStripMenuItem morphingToolStripMenuItem;
         private ToolStripMenuItem beginToolStripMenuItem;
+        private ToolStripMenuItem framesToolStripMenuItem;
+        private ToolStripMenuItem frames5;
+        private ToolStripMenuItem frames10;
     }
 }
