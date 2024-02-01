@@ -86,6 +86,7 @@
             ContextMenuStrip = contextMenuStrip1;
             Controls.Add(toolStrip1);
             Name = "ImageBase";
+            StartPosition = FormStartPosition.Manual;
             Text = "ImageBase";
             Load += ImageBase_Load;
             MouseDown += ImageBase_MouseDown;

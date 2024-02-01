@@ -17,18 +17,30 @@ namespace ImageMorpher
             num_frames = 5;
             frames5.Checked = true;
 
-            source = new ImageBase(ImageBaseType.SOURCE);
+            int offsetX = 10;
+            int offsetY = 10;
+
+            source = new ImageBase(ImageBaseType.SOURCE, 0);
             source.MdiParent = this;
             source.Show();
+            source.Location = new Point(0, 0);
 
-            destination = new ImageBase(ImageBaseType.DESTINATION);
+            destination = new ImageBase(ImageBaseType.DESTINATION, 1);
             destination.MdiParent = this;
             destination.Show();
+            destination.Location = new Point(source.Right + offsetX, 0);
 
-            transition = new ImageBase(ImageBaseType.TRANSITION);
+            transition = new ImageBase(ImageBaseType.TRANSITION, 2);
             transition.MdiParent = this;
             transition.Show();
+            transition.Location = new Point(destination.Right + offsetX, 0);
+
+            controller = new Controller(frames, transition);
+            controller.MdiParent = this;
+            controller.Show();
+            controller.Location = new Point(0, Math.Max(source.Bottom, Math.Max(destination.Bottom, transition.Bottom)) + offsetY);
         }
+
 
         public List<Bitmap> GetFrames()
         {
@@ -89,26 +101,31 @@ namespace ImageMorpher
         {
 
         }
-        public void GenerateIntermediateFrames(List<Point> dest_points, List<Point> source_points, List<Color> dest_colors, List<Color> source_colors)
+        public void GenerateIntermediateFrames(List<Vector2> dest_points, List<Vector2> source_points, Bitmap final_image, Bitmap destination_image, List<Color> dest_colors, List<Color> source_colors)
         {
-
-
-
-            for (int j = 0; j < num_frames; j++)
+            List<Vector2> new_dest_points = new List<Vector2>(dest_points);
+            frames.Add(destination_image);
+            for (int frameIndex = 0; frameIndex < num_frames - 1; frameIndex++)
             {
-                Bitmap frame = new Bitmap(destination.GetImage().Width, destination.GetImage().Height);
-                for (int y = 0; y < frame.Height; y++)
+                Bitmap frame = new Bitmap(destination_image.Width, destination_image.Height);
+
+                for (int i = 0; i < dest_points.Count; i++)
                 {
-                    for (int x = 0; x < frame.Width; x++)
-                    {
-                        float diff_x = dest_points[x].X - source_points[x].X;
-                        float diff_y = dest_points[x].Y - source_points[x].Y;
-                        frame.SetPixel(x + diff_x, )
-                    }
+                    float diff_X = (dest_points[i].X - source_points[i].X) / num_frames;
+                    float diff_Y = (dest_points[i].Y - source_points[i].Y) / num_frames;
+                    Vector2 diffVector = new Vector2(diff_X, diff_Y);
+                    
+                    new_dest_points[i] = Vector2.Subtract(new_dest_points[i], diffVector);
+                    new_dest_points[i] = destination.validatePixel(new_dest_points[i], frame.Width, frame.Height);
+
+                    frame.SetPixel((int)dest_points[i].X, (int)dest_points[i].Y, destination_image.GetPixel((int)new_dest_points[i].X, (int)new_dest_points[i].Y));
                 }
+
                 frames.Add(frame);
             }
+            frames.Add(final_image);
         }
+
 
         private void beginToolStripMenuItem_Click(object sender, EventArgs e)
         {

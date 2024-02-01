@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Security.Permissions;
 using System.Windows.Forms;
 
 namespace ImageMorpher
@@ -13,7 +15,7 @@ namespace ImageMorpher
         protected Bitmap? backgroundImage;
         protected int type;
         protected bool deleting;
-        public ImageBase(int type)
+        public ImageBase(int type, int index)
         {
             InitializeComponent();
             lines = new List<Line>();
@@ -27,7 +29,12 @@ namespace ImageMorpher
 
             this.type = type;
             Text = TypeToString();
+
+            int startX = (index % 4) * (Width + 10);
+            int startY = (index / 4) * (Height + 10);
+            Location = new Point(startX, startY);
         }
+
 
         public void SetImage(Bitmap image)
         {
@@ -141,7 +148,7 @@ namespace ImageMorpher
                 Debug.WriteLine("P Destination: (" + selectedLine.StartX + ", " + selectedLine.StartY + ")");
                 Debug.WriteLine("Q Destination: (" + selectedLine.EndX + ", " + selectedLine.EndY + ")");
                 selectedLine = null;
-                
+
                 Refresh();
             }
         }
@@ -171,20 +178,19 @@ namespace ImageMorpher
 
         }
 
-        
+
 
         public void Morph(List<Line> sourceLines, int num_frames)
         {
-            Bitmap transition = new Bitmap(backgroundImage.Width, backgroundImage.Height);
-            List<Point> dest_points = new List<Point>();
-            List<Color> dest_colors = new List<Color>();
-            List<Point> source_points = new List<Point>();
-            List<Color> source_colors = new List<Color>();
-
-            for (int i = 0; i < num_frames; i++)
+            if (((Parent)MdiParent).GetFrames().Count != 0)
             {
-
+                ((Parent)MdiParent).GetFrames().Clear();
             }
+            Bitmap transition = new Bitmap(backgroundImage.Width, backgroundImage.Height);
+            List<Vector2> dest_points = new List<Vector2>();
+            List<Color> dest_colors = new List<Color>();
+            List<Vector2> source_points = new List<Vector2>();
+            List<Color> source_colors = new List<Color>();
 
             for (int y = 0; y < backgroundImage.Height; ++y)
             {
@@ -206,7 +212,7 @@ namespace ImageMorpher
                         float d = Vector2.Dot(XP, n) / n.Length();
 
                         float f = Vector2.Dot(PX, PQ) / PQ.Length();
-                        
+
                         float fl = f / PQ.Length();
 
                         Line sourceLine = sourceLines[k];
@@ -241,17 +247,17 @@ namespace ImageMorpher
                     XPrime_avg = validatePixel(XPrime_avg, backgroundImage.Width, backgroundImage.Height);
                     transition.SetPixel(x, y, backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
 
-                    dest_points.Add(new Point(x, y));
+                    dest_points.Add(new Vector2(x, y));
                     dest_colors.Add(backgroundImage.GetPixel(x, y));
-                    source_points.Add(new Point((int)XPrime_avg.X, (int)XPrime_avg.Y));
+                    source_points.Add(new Vector2((int)XPrime_avg.X, (int)XPrime_avg.Y));
                     source_colors.Add(backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
                 }
             }
-            ((Parent)MdiParent).GenerateIntermediateFrames(dest_points, source_points, dest_colors, source_colors);
+            ((Parent)MdiParent).GenerateIntermediateFrames(dest_points, source_points, transition, backgroundImage, dest_colors, source_colors);
             ((Parent)MdiParent).UpdateTransition(0);
         }
 
-        private Vector2 validatePixel(Vector2 coord, int width, int height)
+        public Vector2 validatePixel(Vector2 coord, int width, int height)
         {
             if (coord.X < 0)
             {

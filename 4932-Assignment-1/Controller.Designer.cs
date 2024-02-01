@@ -45,9 +45,10 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(326, 177);
+            ClientSize = new Size(258, 92);
             Controls.Add(button1);
             Name = "Controller";
+            StartPosition = FormStartPosition.Manual;
             Text = "Controller";
             Load += Controller_Load;
             ResumeLayout(false);
