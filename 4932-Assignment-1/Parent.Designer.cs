@@ -35,12 +35,18 @@
             framesToolStripMenuItem = new ToolStripMenuItem();
             frames5 = new ToolStripMenuItem();
             frames10 = new ToolStripMenuItem();
+            threadsToolStripMenuItem = new ToolStripMenuItem();
+            t1 = new ToolStripMenuItem();
+            t2 = new ToolStripMenuItem();
+            t3 = new ToolStripMenuItem();
+            t4 = new ToolStripMenuItem();
+            t8 = new ToolStripMenuItem();
             menu_strip.SuspendLayout();
             SuspendLayout();
             // 
             // menu_strip
             // 
-            menu_strip.Items.AddRange(new ToolStripItem[] { menu_file, morphingToolStripMenuItem, framesToolStripMenuItem });
+            menu_strip.Items.AddRange(new ToolStripItem[] { menu_file, morphingToolStripMenuItem, framesToolStripMenuItem, threadsToolStripMenuItem });
             menu_strip.Location = new Point(0, 0);
             menu_strip.Name = "menu_strip";
             menu_strip.Size = new Size(1079, 24);
@@ -78,16 +84,58 @@
             // frames5
             // 
             frames5.Name = "frames5";
-            frames5.Size = new Size(180, 22);
+            frames5.Size = new Size(86, 22);
             frames5.Text = "5";
             frames5.Click += frames5_Click;
             // 
             // frames10
             // 
             frames10.Name = "frames10";
-            frames10.Size = new Size(180, 22);
+            frames10.Size = new Size(86, 22);
             frames10.Text = "10";
             frames10.Click += frames10_Click;
+            // 
+            // threadsToolStripMenuItem
+            // 
+            threadsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { t1, t2, t3, t4, t8 });
+            threadsToolStripMenuItem.Name = "threadsToolStripMenuItem";
+            threadsToolStripMenuItem.Size = new Size(60, 20);
+            threadsToolStripMenuItem.Text = "Threads";
+            // 
+            // t1
+            // 
+            t1.Name = "t1";
+            t1.Size = new Size(180, 22);
+            t1.Text = "1";
+            t1.Click += t1_Click;
+            // 
+            // t2
+            // 
+            t2.Name = "t2";
+            t2.Size = new Size(180, 22);
+            t2.Text = "2";
+            t2.Click += t2_Click;
+            // 
+            // t3
+            // 
+            t3.Name = "t3";
+            t3.Size = new Size(180, 22);
+            t3.Text = "3";
+            t3.Click += t3_Click;
+            // 
+            // t4
+            // 
+            t4.Name = "t4";
+            t4.Size = new Size(180, 22);
+            t4.Text = "4";
+            t4.Click += t4_Click;
+            // 
+            // t8
+            // 
+            t8.Name = "t8";
+            t8.Size = new Size(180, 22);
+            t8.Text = "8";
+            t8.Click += t8_Click;
             // 
             // Parent
             // 
@@ -115,5 +163,11 @@
         private ToolStripMenuItem framesToolStripMenuItem;
         private ToolStripMenuItem frames5;
         private ToolStripMenuItem frames10;
+        private ToolStripMenuItem threadsToolStripMenuItem;
+        private ToolStripMenuItem t1;
+        private ToolStripMenuItem t2;
+        private ToolStripMenuItem t3;
+        private ToolStripMenuItem t4;
+        private ToolStripMenuItem t8;
     }
 }

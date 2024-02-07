@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 
 namespace ImageMorpher
@@ -8,13 +9,20 @@ namespace ImageMorpher
         private ImageBase transition;
         private ImageBase source;
         private Controller controller;
+        private List<Bitmap> forwardframes;
+        private List<Bitmap> backwardframes;
         private List<Bitmap> frames;
         private int num_frames;
+        private int num_threads;
+        private double time;
         public Parent()
         {
             InitializeComponent();
+            forwardframes = new List<Bitmap>();
+            backwardframes = new List<Bitmap>();
             frames = new List<Bitmap>();
             num_frames = 5;
+            num_threads = 1;
             frames5.Checked = true;
 
             int offsetX = 10;
@@ -35,16 +43,47 @@ namespace ImageMorpher
             transition.Show();
             transition.Location = new Point(destination.Right + offsetX, 0);
 
-            controller = new Controller(frames, transition);
-            controller.MdiParent = this;
-            controller.Show();
-            controller.Location = new Point(0, Math.Max(source.Bottom, Math.Max(destination.Bottom, transition.Bottom)) + offsetY);
+
         }
 
 
         public List<Bitmap> GetFrames()
         {
             return frames;
+        }
+
+        public List<Bitmap> GetForwardFrames()
+        {
+            return forwardframes;
+        }
+
+        public List<Bitmap> GetBackwardFrames()
+        {
+            return backwardframes;
+        }
+
+        public List<Bitmap> crossDissolve(List<Bitmap> a, List<Bitmap> b)
+        {
+            List<Bitmap> result = new List<Bitmap>();
+            for (int i = 0; i < a.Count; i++)
+            {
+                result.Add(new Bitmap(a[i].Width, a[i].Height));
+                for (int x = 0; x < a[i].Width; x++)
+                {
+                    for (int y = 0; y < a[i].Height; y++)
+                    {
+                        double t = (double)(i) / (a.Count - 1);
+                        Color colorA = a[i].GetPixel(x, y);
+                        Color colorB = b[i].GetPixel(x, y);
+                        int newR = (int)Math.Round((1 - t) * colorA.R + t * colorB.R);
+                        int newG = (int)Math.Round((1 - t) * colorA.G + t * colorB.G);
+                        int newB = (int)Math.Round((1 - t) * colorA.B + t * colorB.B);
+                        int newA = (int)Math.Round((1 - t) * colorA.A + t * colorB.A);
+                        result[i].SetPixel(x, y, Color.FromArgb(newA, newR, newG, newB));
+                    }
+                }
+            }
+            return result;
         }
 
         public void Reflect(Line line, int origin, int intention)
@@ -85,7 +124,7 @@ namespace ImageMorpher
         {
         }
 
-        public void UpdateTransition(int frame)
+        public void UpdateTransition(List<Bitmap> frames, int frame)
         {
             if (transition == null) return;
             transition.SetImage(frames[frame]);
@@ -101,7 +140,8 @@ namespace ImageMorpher
         {
 
         }
-        public void GenerateIntermediateFrames(List<Vector2> dest_points, List<Vector2> source_points, Bitmap final_image, Bitmap destination_image, List<Color> dest_colors, List<Color> source_colors)
+
+        public List<Bitmap> GenerateIntermediateFrames(List<Bitmap> frames, List<Vector2> dest_points, List<Vector2> source_points, Bitmap final_image, Bitmap destination_image, List<Color> dest_colors, List<Color> source_colors)
         {
             List<Vector2> new_dest_points = new List<Vector2>(dest_points);
             frames.Add(destination_image);
@@ -114,7 +154,7 @@ namespace ImageMorpher
                     float diff_X = (dest_points[i].X - source_points[i].X) / num_frames;
                     float diff_Y = (dest_points[i].Y - source_points[i].Y) / num_frames;
                     Vector2 diffVector = new Vector2(diff_X, diff_Y);
-                    
+
                     new_dest_points[i] = Vector2.Subtract(new_dest_points[i], diffVector);
                     new_dest_points[i] = destination.validatePixel(new_dest_points[i], frame.Width, frame.Height);
 
@@ -124,12 +164,37 @@ namespace ImageMorpher
                 frames.Add(frame);
             }
             frames.Add(final_image);
+            return frames;
         }
 
+        public int GetThreads()
+        {
+            return num_threads;
+        }
+
+        public double GetTime()
+        {
+            return time;
+        }
+
+        private System.Timers.Timer clock;
 
         private void beginToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            destination.Morph(source.GetLines(), num_frames);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            backwardframes = destination.Morph(backwardframes, source.GetLines(), num_frames, num_threads);
+            forwardframes = source.Morph(forwardframes, destination.GetLines(), num_frames, num_threads);
+            sw.Stop();
+            time = sw.Elapsed.TotalSeconds;
+
+            backwardframes.Reverse();
+            frames = crossDissolve(forwardframes, backwardframes);
+
+            controller = new Controller(frames, transition);
+            controller.MdiParent = this;
+            controller.Show();
+            controller.Location = new Point(0, Math.Max(source.Bottom, Math.Max(destination.Bottom, transition.Bottom)) + 10);
         }
 
         private void frames5_Click(object sender, EventArgs e)
@@ -144,6 +209,56 @@ namespace ImageMorpher
             frames5.Checked = false;
             frames10.Checked = true;
             num_frames = 10;
+        }
+
+        private void t1_Click(object sender, EventArgs e)
+        {
+            t1.Checked = true;
+            t2.Checked = false;
+            t3.Checked = false;
+            t4.Checked = false;
+            t8.Checked = false;
+            num_threads = 1;
+        }
+
+        private void t2_Click(object sender, EventArgs e)
+        {
+            t1.Checked = false;
+            t2.Checked = true;
+            t3.Checked = false;
+            t4.Checked = false;
+            t8.Checked = false;
+            num_threads = 2;
+        }
+
+        private void t3_Click(object sender, EventArgs e)
+        {
+            t1.Checked = false;
+            t2.Checked = false;
+            t3.Checked = true;
+            t4.Checked = false;
+            t8.Checked = false;
+            num_threads = 3;
+        }
+
+        private void t4_Click(object sender, EventArgs e)
+        {
+            t1.Checked = false;
+            t2.Checked = false;
+            t3.Checked = false;
+            t4.Checked = true;
+            t8.Checked = false;
+            num_threads = 4;
+        }
+
+        private void t8_Click(object sender, EventArgs e)
+        {
+            t1.Checked = false;
+            t2.Checked = false;
+            t3.Checked = false;
+            t4.Checked = false;
+            t8.Checked = true;
+            num_threads = 8;
         }
     }
 }

@@ -104,10 +104,6 @@ namespace ImageMorpher
                     }
                 }
             }
-            else
-            {
-                backgroundImage = ((Parent)MdiParent).GetFrames()[3];
-            }
         }
 
 
@@ -137,21 +133,19 @@ namespace ImageMorpher
             {
                 lines.Add(currentLine);
                 ((Parent)MdiParent).Reflect(currentLine, this.type, Intention.CREATING_NEW_LINE);
-                Debug.WriteLine("P Source: (" + currentLine.StartX + ", " + currentLine.StartY + ")");
-                Debug.WriteLine("Q Source: (" + currentLine.EndX + ", " + currentLine.EndY + ")");
                 currentLine = null;
                 selectedLine = null;
                 Refresh();
             }
             else if (selectedLine != null && !deleting)
             {
-                Debug.WriteLine("P Destination: (" + selectedLine.StartX + ", " + selectedLine.StartY + ")");
-                Debug.WriteLine("Q Destination: (" + selectedLine.EndX + ", " + selectedLine.EndY + ")");
                 selectedLine = null;
 
                 Refresh();
             }
         }
+
+        
 
         public Line getLine(int lineId)
         {
@@ -178,24 +172,60 @@ namespace ImageMorpher
 
         }
 
-
-
-        public void Morph(List<Line> sourceLines, int num_frames)
+        public List<Bitmap> Morph(List<Bitmap> frames, List<Line> sourceLines, int num_frames, int num_threads)
         {
             if (((Parent)MdiParent).GetFrames().Count != 0)
             {
                 ((Parent)MdiParent).GetFrames().Clear();
             }
+
             Bitmap transition = new Bitmap(backgroundImage.Width, backgroundImage.Height);
             List<Vector2> dest_points = new List<Vector2>();
             List<Color> dest_colors = new List<Color>();
             List<Vector2> source_points = new List<Vector2>();
             List<Color> source_colors = new List<Color>();
 
-            for (int y = 0; y < backgroundImage.Height; ++y)
+            int threadWidth = backgroundImage.Width / num_threads + 1;
+            int width = backgroundImage.Width;
+            int height = backgroundImage.Height;
+
+            // Create threads
+            List<Thread> threads = new List<Thread>();
+
+            for (int t = 0; t < num_threads; t++)
             {
-                for (int x = 0; x < backgroundImage.Width; ++x)
+                int startX = t * threadWidth;
+                int endX = Math.Min((t + 1) * threadWidth, width);
+
+                Thread thread = new Thread(() =>
                 {
+                    MorphThread(startX, 0, endX, height, sourceLines, dest_points, dest_colors, source_points, source_colors, transition);
+                });
+
+                threads.Add(thread);
+                thread.Start();
+            }
+
+            // Join threads
+            foreach (Thread thread in threads)
+            {
+                thread.Join();
+            }
+
+            frames = ((Parent)MdiParent).GenerateIntermediateFrames(frames, dest_points, source_points, transition, backgroundImage, dest_colors, source_colors);
+            return frames;
+        }
+
+
+        private readonly object locker = new Object();
+
+        private void MorphThread(int startX, int startY, int endX, int endY, List<Line> sourceLines, List<Vector2> dest_points, List<Color> dest_colors, List<Vector2> source_points, List<Color> source_colors, Bitmap transition)
+        {
+            for (int y = startY; y < endY; ++y)
+            {
+                for (int x = startX; x < endX; x++)
+                {
+
                     double weight_sum = 0;
                     Vector2 delta_sum = new Vector2(0, 0);
                     for (int k = 0; k < lines.Count; k++)
@@ -241,21 +271,49 @@ namespace ImageMorpher
                         delta_sum += Vector2.Multiply((float)weight, delta1);
 
                     }
-                    Vector2 delta_avg = Vector2.Divide(delta_sum, (float)weight_sum);
+                    lock (locker)
+                    {
+                        Vector2 delta_avg = Vector2.Divide(delta_sum, (float)weight_sum);
 
-                    Vector2 XPrime_avg = new Vector2(x, y) + delta_avg;
-                    XPrime_avg = validatePixel(XPrime_avg, backgroundImage.Width, backgroundImage.Height);
-                    transition.SetPixel(x, y, backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
+                        Vector2 XPrime_avg = new Vector2(x, y) + delta_avg;
 
-                    dest_points.Add(new Vector2(x, y));
-                    dest_colors.Add(backgroundImage.GetPixel(x, y));
-                    source_points.Add(new Vector2((int)XPrime_avg.X, (int)XPrime_avg.Y));
-                    source_colors.Add(backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
+                        XPrime_avg = validatePixel(XPrime_avg, backgroundImage.Width, backgroundImage.Height);
+                        transition.SetPixel(x, y, backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
+
+                        dest_points.Add(new Vector2(x, y));
+                        dest_colors.Add(backgroundImage.GetPixel(x, y));
+                        source_points.Add(new Vector2((int)XPrime_avg.X, (int)XPrime_avg.Y));
+                        source_colors.Add(backgroundImage.GetPixel((int)XPrime_avg.X, (int)XPrime_avg.Y));
+                    }
                 }
             }
-            ((Parent)MdiParent).GenerateIntermediateFrames(dest_points, source_points, transition, backgroundImage, dest_colors, source_colors);
-            ((Parent)MdiParent).UpdateTransition(0);
         }
+
+
+        /*public List<Bitmap> Morph(List<Bitmap> frames, List<Line> sourceLines, int num_frames, int num_threads)
+        {
+            if (((Parent)MdiParent).GetFrames().Count != 0)
+            {
+                ((Parent)MdiParent).GetFrames().Clear();
+            }
+            Bitmap transition = new Bitmap(backgroundImage.Width, backgroundImage.Height);
+            List<Vector2> dest_points = new List<Vector2>();
+            List<Color> dest_colors = new List<Color>();
+            List<Vector2> source_points = new List<Vector2>();
+            List<Color> source_colors = new List<Color>();
+            int height = backgroundImage.Height / num_threads;
+            int width = backgroundImage.Width / num_threads;
+
+            for (int y = 0; y < backgroundImage.Height; ++y)
+            {
+                for (int x = 0; x < backgroundImage.Width; ++x)
+                {
+                    d
+                }
+            }
+            frames = ((Parent)MdiParent).GenerateIntermediateFrames(frames, dest_points, source_points, transition, backgroundImage, dest_colors, source_colors);
+            return frames;
+        }*/
 
         public Vector2 validatePixel(Vector2 coord, int width, int height)
         {
