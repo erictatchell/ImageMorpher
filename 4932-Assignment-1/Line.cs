@@ -38,8 +38,6 @@
             this.startY = startY;
         }
 
-
-
         public void Draw(PaintEventArgs e)
         {
             Point p1 = new Point(startX, startY);

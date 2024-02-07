@@ -68,7 +68,7 @@ namespace ImageMorpher
 
         private void Controller_Load(object sender, EventArgs e)
         {
-            label1.Text = ((Parent)MdiParent).GetThreads() + " threads: " + ((Parent)MdiParent).GetTime() + " seconds";
+            label1.Text = ((Parent)MdiParent).GetThreads() + " threads: " + ((Parent)MdiParent).GetThreadedTime() + " seconds\n1 threads: " + ((Parent)MdiParent).Get1ThreadedTime() + " seconds";
         }
 
         private void Previous_Click(object sender, EventArgs e)

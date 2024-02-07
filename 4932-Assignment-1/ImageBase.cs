@@ -189,32 +189,29 @@ namespace ImageMorpher
             int width = backgroundImage.Width;
             int height = backgroundImage.Height;
 
-            // Create threads
-            List<Thread> threads = new List<Thread>();
+            // Create tasks
+            List<Task> tasks = new List<Task>();
 
             for (int t = 0; t < num_threads; t++)
             {
                 int startX = t * threadWidth;
                 int endX = Math.Min((t + 1) * threadWidth, width);
 
-                Thread thread = new Thread(() =>
+                Task task = Task.Run(() =>
                 {
                     MorphThread(startX, 0, endX, height, sourceLines, dest_points, dest_colors, source_points, source_colors, transition);
                 });
 
-                threads.Add(thread);
-                thread.Start();
+                tasks.Add(task);
             }
 
-            // Join threads
-            foreach (Thread thread in threads)
-            {
-                thread.Join();
-            }
+            // Wait for all tasks to complete
+            Task.WaitAll(tasks.ToArray());
 
             frames = ((Parent)MdiParent).GenerateIntermediateFrames(frames, dest_points, source_points, transition, backgroundImage, dest_colors, source_colors);
             return frames;
         }
+
 
 
         private readonly object locker = new Object();

@@ -15,6 +15,7 @@ namespace ImageMorpher
         private int num_frames;
         private int num_threads;
         private double time;
+        private double time2;
         public Parent()
         {
             InitializeComponent();
@@ -22,7 +23,8 @@ namespace ImageMorpher
             backwardframes = new List<Bitmap>();
             frames = new List<Bitmap>();
             num_frames = 5;
-            num_threads = 1;
+            num_threads = 2;
+            t2.Checked = true;
             frames5.Checked = true;
 
             int offsetX = 10;
@@ -172,9 +174,14 @@ namespace ImageMorpher
             return num_threads;
         }
 
-        public double GetTime()
+        public double GetThreadedTime()
         {
             return time;
+        }
+
+        public double Get1ThreadedTime()
+        {
+            return time2;
         }
 
         private System.Timers.Timer clock;
@@ -182,11 +189,22 @@ namespace ImageMorpher
         private void beginToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Stopwatch sw = new Stopwatch();
+            List<Bitmap> dummy = new List<Bitmap>();
+
             sw.Start();
+            dummy = destination.Morph(dummy, source.GetLines(), num_frames, 1);
+            dummy = source.Morph(dummy, destination.GetLines(), num_frames, 1);
+            sw.Stop();
+            time2 = sw.Elapsed.TotalSeconds;
+
+            Stopwatch sw2 = new Stopwatch();
+            sw2.Start();
             backwardframes = destination.Morph(backwardframes, source.GetLines(), num_frames, num_threads);
             forwardframes = source.Morph(forwardframes, destination.GetLines(), num_frames, num_threads);
-            sw.Stop();
-            time = sw.Elapsed.TotalSeconds;
+            sw2.Stop();
+            time = sw2.Elapsed.TotalSeconds;
+
+            
 
             backwardframes.Reverse();
             frames = crossDissolve(forwardframes, backwardframes);
