@@ -79,29 +79,29 @@ namespace ImageMorpher
 
         private void ImageBase_MouseDown(object sender, MouseEventArgs e)
         {
-            if (type != ImageBaseType.TRANSITION)
-            {
-                bool hoveringOverLine = false;
+            if (type == ImageBaseType.TRANSITION) {
+                return;
+            }
+            bool hoveringOverLine = false;
 
-                foreach (Line line in lines)
+            foreach (Line line in lines)
+            {
+                if (line.GetUserIntention(e) != Intention.CREATING_NEW_LINE)
                 {
-                    if (line.GetUserIntention(e) != Intention.CREATING_NEW_LINE)
+                    hoveringOverLine = true;
+                    selectedLine = line;
+                    if (e.Button == MouseButtons.Right)
                     {
-                        hoveringOverLine = true;
-                        selectedLine = line;
-                        if (e.Button == MouseButtons.Right)
-                        {
-                            deleting = true;
-                        }
+                    deleting = true;
                     }
                 }
-
-                if (!hoveringOverLine)
+            }
+            
+            if (!hoveringOverLine)
+            {
+                if (backgroundImage != null && e.Button == MouseButtons.Left)
                 {
-                    if (backgroundImage != null && e.Button == MouseButtons.Left)
-                    {
-                        currentLine = new Line(e.Location.X, e.Location.Y);
-                    }
+                    currentLine = new Line(e.Location.X, e.Location.Y);
                 }
             }
         }
@@ -114,35 +114,31 @@ namespace ImageMorpher
             if (currentLine != null)
             {
                 currentLine.UpdateEndPoints(e.Location.X, e.Location.Y);
-                Refresh();
             }
 
             // resizing existing line
             else if (selectedLine != null)
             {
                 selectedLine.Resize(e);
-                Refresh();
             }
+            Refresh();
         }
 
 
 
         private void ImageBase_MouseUp(object sender, MouseEventArgs e)
         {
-            if (backgroundImage != null && e.Button == MouseButtons.Left && currentLine != null && !deleting)
+            if (backgroundImage == null || deleting) {
+                return;
+            }
+            if (e.Button == MouseButtons.Left && currentLine != null)
             {
                 lines.Add(currentLine);
                 ((Parent)MdiParent).Reflect(currentLine, this.type, Intention.CREATING_NEW_LINE);
                 currentLine = null;
-                selectedLine = null;
-                Refresh();
             }
-            else if (selectedLine != null && !deleting)
-            {
-                selectedLine = null;
-
-                Refresh();
-            }
+            selectedLine = null;
+            Refresh();
         }
 
         
